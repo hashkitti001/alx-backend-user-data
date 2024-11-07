@@ -3,6 +3,9 @@
 from typing import List
 import logging
 import re
+import os
+import mysql
+import mysql.connector
 
 PII_FIELDS = ('name', 'email', 'password', 'ssn', 'phone')
 
@@ -15,6 +18,7 @@ def filter_datum(fields: List[str],
     pattern = r"(" + "|".join(fields) + r")=([^" + seperator + r"]+)"
     return re.sub(pattern, r"\1=" + redaction, message)
 
+
 def get_logger() -> logging.Logger:
     """Defines a new logger for user data."""
     logger = logging.getLogger("user_data")
@@ -26,6 +30,24 @@ def get_logger() -> logging.Logger:
     return logger
 
 
+def get_db():
+    """Connects to a MySQL database."""
+    DB_USERNAME = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    DB_PASSWORD = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    DB_HOST = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    DB_NAME = os.getenv('PERSONAL_DATA_DB_NAME', '')
+
+    try:
+        cnx = mysql.connector.connect(
+            user=DB_USERNAME,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            host=DB_HOST,
+            port=3306
+        )
+        return cnx
+    except Exception as e:
+        logging.warning(e)
 
 
 class RedactingFormatter(logging.Formatter):
@@ -46,6 +68,11 @@ class RedactingFormatter(logging.Formatter):
         msg = super(RedactingFormatter, self).format(record)
         txt = filter_datum(self.fields, self.REDACTION, msg, self.SEPARATOR)
         return txt
+
+# def main() -> None:
+#     """Logs info about user records in a MySQL table."""
+#     cur = get_db()
+
 
 # if __name__ == "__main__":
 #     main()
