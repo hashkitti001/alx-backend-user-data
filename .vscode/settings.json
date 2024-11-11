@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
+        "./0x01-Basic_authentication/SimpleAPI",
         "./0x01-Basic_authentication/SimpleAPI"
     ]
 }
