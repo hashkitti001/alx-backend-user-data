@@ -11,9 +11,11 @@ import binascii
 class BasicAuth(Auth):
     """A class for basic auth routes."""
 
-    def extract_base64_authorization_header(self, authorization_header: str) -> str:
+    def extract_base64_authorization_header(self,
+                                            authorization_header: str
+                                            ) -> str:
         """Returns Base 64 part of Authorization header."""
-        if type(authorization_header) == str:
+        if type(authorization_header) is str:
             pattern = r'Basic (?P<token>.+)'
             field_match = re.fullmatch(pattern, authorization_header.strip())
             if field_match is not None:
@@ -25,7 +27,7 @@ class BasicAuth(Auth):
         base64_authorization_header: str,
     ) -> str:
         """Decodes a base64 encoded authorization header."""
-        if type(base64_authorization_header) == str:
+        if type(base64_authorization_header) is str:
             try:
                 res = base64.b64decode(
                     base64_authorization_header,
@@ -35,9 +37,12 @@ class BasicAuth(Auth):
             except (binascii.Error, UnicodeDecodeError):
                 return None
 
-    def extract_user_credentials(self, decoded_base64_authorization_header: str) -> Tuple[str, str]:
+    def extract_user_credentials(
+            self,
+            decoded_base64_authorization_header: str
+    ) -> Tuple[str, str]:
         """Extracts user credentials from a user's request."""
-        if (type(decoded_base64_authorization_header) == str):
+        if (type(decoded_base64_authorization_header) is str):
             pattern = r'(?P<user>[^:]+):(?P<password>.+)'
             field_match = re.fullmatch(
                 pattern,
@@ -54,7 +59,7 @@ class BasicAuth(Auth):
             user_email: str,
             user_pwd: str) -> TypeVar('User'):  # type: ignore
         """Retrieves a user based on the user's auth credentials."""
-        if type(user_email) == str and type(user_pwd) == str:
+        if type(user_email) is str and type(user_pwd) is str:
             try:
                 users = User.search({'email': user_email})
             except Exception:

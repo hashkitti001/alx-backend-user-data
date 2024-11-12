@@ -32,4 +32,4 @@ class Auth:
 
     def current_user(self, request=None) -> TypeVar('User'):  # type: ignore
         """Gets the current user."""
-        pass
+        return None
