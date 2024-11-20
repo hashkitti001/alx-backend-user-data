@@ -59,6 +59,7 @@ class Auth:
         sess_id = _generate_uuid()
         self._db.update_user(user.id, session_id=sess_id)
         return sess_id
+    
     def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
         """Gets user from session id."""
         user = None
@@ -70,3 +71,10 @@ class Auth:
             except NoResultFound:
                 return None
         return None
+    
+    def destroy_session(self, user_id: str) -> None:
+        """Destroys a user session."""
+        if user_id is None:
+            return None
+        self._db.update_user(user_id, session_id=None)
+    
