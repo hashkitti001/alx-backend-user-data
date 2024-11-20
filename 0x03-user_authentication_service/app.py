@@ -33,7 +33,7 @@ def register_user() -> str:
 def login() -> str:
     """POST /sessions
     Returns:
-        - The account login payload
+        - The account login payload.
     """
     email, password = request.form.get("email"), request.form.get("password")
     if not AUTH.valid_login(email, password):
@@ -45,12 +45,29 @@ def login() -> str:
        
 @app.route('/sessions', methods=['DELETE'], strict_slashes=False)
 def logout():
+    """DELETE /sessions
+    Returns:
+        - A redirect to the home route.
+    """
     session_id = request.cookies.get("session_id")
     user = AUTH.get_user_from_session_id(session_id)
     if user is None:
         abort(403)
     AUTH.destroy_session(user.id)
     return redirect('/')
+
+@app.route('/profile', methods=['GET'], strict_slashes=False)
+def profile():
+    """GET /
+    Returns:
+        - The user's profile information.
+    """
+    session_id = request.cookies.get("session_id")
+    if session_id is not None:
+        user = AUTH.get_user_from_session_id(session_id)
+        if user is None:
+            abort(403)
+        return jsonify({"email": user.email})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
