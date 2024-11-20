@@ -19,7 +19,7 @@ def welcome() -> str:
 @app.route('/users', methods=['POST'], strict_slashes=False)
 def register_user() -> str:
     """POST /users
-    Return: 
+    Return:
         - The account creation payload.
     """
     email, password = request.form.get("email"), request.form.get("password")
