@@ -17,7 +17,7 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -34,12 +34,12 @@ class DB:
     def add_user(self, email: str, hashed_password: str) -> User:
         """Creates a new user."""
         try:
-            new_user = User(email=email, 
+            new_user = User(email=email,
                             hashed_password=hashed_password)
-            self.__session.add(new_user)
-            self.__session.commit()
+            self._session.add(new_user)
+            self._session.commit()
         except Exception:
-            self.__session.rollback()
+            self._session.rollback()
             new_user = None
         return new_user
 
@@ -52,13 +52,13 @@ class DB:
                 values.append(val)
             else:
                 raise InvalidRequestError()
-            result = self.__session.query(User).filter(
-                tuple_(*fields)._in([tuple(values)])
-            ).first()
-            if result is None:
-                raise NoResultFound()
-            return result
-    
+        result = self._session.query(User).filter(
+            tuple_(*fields).in_([tuple(values)])
+        ).first()
+        if result is None:
+            raise NoResultFound()
+        return result
+
     def update_user(self, user_id: int, **kwargs) -> None:
         """Updates a user record with the aid of the find_user_by."""
         user = self.find_user_by(id=user_id)
@@ -72,8 +72,7 @@ class DB:
                 raise ValueError()
             self.__session.query(User).filter(
                 User.id == user_id
-                ).update(
-                    update_src,
-                    synchronize_session=False
-                )
-
+            ).update(
+                update_src,
+                synchronize_session=False
+            )
