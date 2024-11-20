@@ -29,6 +29,7 @@ def register_user() -> str:
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
+
 @app.route('/sessions', methods=['POST'])
 def login() -> str:
     """POST /sessions
@@ -37,14 +38,15 @@ def login() -> str:
     """
     email, password = request.form.get("email"), request.form.get("password")
     if not AUTH.valid_login(email, password):
-       abort(401)
+        abort(401)
     session_id = AUTH.create_session(email)
     response = jsonify({"email": email, "message": "logged in"})
     response.set_cookie("session_id", session_id)
     return response
-       
+
+
 @app.route('/sessions', methods=['DELETE'], strict_slashes=False)
-def logout():
+def logout() -> str:
     """DELETE /sessions
     Returns:
         - A redirect to the home route.
@@ -55,6 +57,7 @@ def logout():
         abort(403)
     AUTH.destroy_session(user.id)
     return redirect('/')
+
 
 @app.route('/profile', methods=['GET'], strict_slashes=False)
 def profile():
@@ -69,8 +72,9 @@ def profile():
             abort(403)
         return jsonify({"email": user.email})
 
-@app.route('/reset-password', methods=['POST'], strict_slashes=False)
-def get_reset_password_token():
+
+@app.route('/reset_password', methods=['POST'], strict_slashes=False)
+def get_reset_password_token() -> str:
     """POST /reset-password
     Returns:
         - A payload containing the reset password token.
@@ -84,6 +88,27 @@ def get_reset_password_token():
     if reset_token is None:
         abort(403)
     return jsonify({"email": email, "reset_token": reset_token})
+
+
+@app.route('/reset_password', methods=['PUT'], strict_slashes=False)
+def update_password() -> str:
+    """PUT /reset_password
+    Returns:
+        - Reset password payload
+    """
+    email = request.form.get('email')
+    reset_token = request.form.get('reset_token')
+    new_password = request.form.get('new-password')
+    is_password_changed = False
+    try:
+        AUTH.update_password(reset_token, new_password)
+        is_password_changed = True
+    except ValueError:
+        is_password_changed = False
+    if not is_password_changed:
+        abort(403)
+    return jsonify({"email": email, "message": "Password updated"})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
