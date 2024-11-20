@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Module for doing auth stuff."""
+from typing import Union
 import bcrypt
 from db import DB
 from user import User
@@ -17,7 +18,6 @@ def _hash_password(password: str) -> bytes:
 def _generate_uuid() -> str:
     """Generates a UUID."""
     return str(uuid.uuid4())
-
 
 class Auth:
     """Auth class to interact with the authentication database.
@@ -59,3 +59,14 @@ class Auth:
         sess_id = _generate_uuid()
         self._db.update_user(user.id, session_id=sess_id)
         return sess_id
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
+        """Gets user from session id."""
+        user = None
+        if session_id is not None:
+            try:
+                user = self._db.find_user_by(session_id=session_id)
+                if user is not None:
+                    return user
+            except NoResultFound:
+                return None
+        return None
