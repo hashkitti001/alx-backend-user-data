@@ -30,13 +30,12 @@ def register_user() -> str:
         return jsonify({"message": "email already registered"}), 400
 
 @app.route('/sessions', methods=['POST'])
-def login():
+def login() -> str:
     """POST /sessions
     Returns:
         - The account login payload
     """
-    email, password = request.form.get("email"),
-    request.form.get("password")
+    email, password = request.form.get("email"), request.form.get("password")
     if not AUTH.valid_login(email, password):
        abort(401)
     session_id = AUTH.create_session(email)
