@@ -4,7 +4,7 @@ import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
-
+import uuid
 
 def _hash_password(password: str) -> bytes:
     """Hashes a plain text password with the Bluefish algo."""
@@ -12,6 +12,9 @@ def _hash_password(password: str) -> bytes:
     hashed_pwd = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_pwd
 
+def _generate_uuid() -> str:
+    """Generates a UUID."""
+    return str(uuid.uuid4())
 
 class Auth:
     """Auth class to interact with the authentication database.
@@ -27,3 +30,4 @@ class Auth:
         except NoResultFound:
             return self._db.add_user(email, _hash_password(password))
         raise ValueError("User {} already exists".format(email))
+    
